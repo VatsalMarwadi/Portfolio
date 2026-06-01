@@ -1,0 +1,31 @@
+<section id="about">
+  <div>
+    <div class="section-label reveal">About Me</div>
+    <h2 class="about-title reveal">
+      Crafting<br />
+      <em>beautiful</em><br />
+      digital worlds
+    </h2>
+    <p class="about-text reveal">
+      I'm Vatsal Marwadi — a full-stack developer from Surat with a obsession
+      for clean architecture and expressive interfaces. I build things people
+      remember, not just use. Every pixel, every API call, every database query
+      is a chance to do something extraordinary.
+    </p>
+  </div>
+
+  <div class="about-right reveal">
+    {% for category, skill_list in grouped_skills.items %}
+    <div class="skills-group">
+      <div class="skills-group-title">{{ category }}</div>
+      <div class="skills-tags">
+        {% for skill in skill_list %}
+        <div class="skill-tag">
+          <span>{{ skill.skill_name }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>

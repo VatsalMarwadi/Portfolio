@@ -1,0 +1,38 @@
+# Blueprint for repos where Django lives in the `portfolio/` subdirectory.
+# If your Git root IS the `portfolio/` folder, use portfolio/render.yaml instead.
+
+services:
+  - type: web
+    name: portfolio-web
+    runtime: python
+    plan: free
+    rootDir: portfolio
+    buildCommand: "./build.sh"
+    startCommand: >-
+      gunicorn portfolio.wsgi:application
+      --bind 0.0.0.0:$PORT
+      --workers 2
+      --threads 2
+      --timeout 120
+      --access-logfile -
+      --error-logfile -
+    healthCheckPath: /home/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DATABASE_SSL_REQUIRE
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: portfolio-db
+          property: connectionString
+
+databases:
+  - name: portfolio-db
+    plan: free
+    databaseName: portfolio
+    user: portfolio

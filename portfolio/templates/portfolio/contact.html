@@ -1,0 +1,115 @@
+<section id="contact">
+  <div class="contact-inner">
+    <div>
+      <div class="section-label reveal">Get In Touch</div>
+      <div class="contact-big reveal">
+        Let's<br />
+        <em>build</em><br />
+        together.
+      </div>
+      <p class="contact-sub reveal">
+        Whether you have a project in mind, want to collaborate, or just want to
+        say hello — I'm always up for a good conversation.
+      </p>
+      <div class="contact-links reveal">
+        {% for link in links %}
+        {% if link.link_name == "Email" %}
+        <a href="{% if 'mailto:' in link.url %}{{ link.url }}{% else %}mailto:{{ link.url }}{% endif %}" class="contact-link">
+        {% else %}
+        <a href="{{ link.href }}" class="contact-link" target="_blank" rel="noopener noreferrer">
+        {% endif %}
+          <div>
+            <div class="contact-link-name">{{ link.link_name }}</div>
+            <div class="contact-link-handle">
+              {% if link.link_name == "Email" %}
+              {{ link.url }}
+              {% else %}
+              {{ link.url|cut:"https://"|cut:"http://"|cut:"www." }}
+              {% endif %}
+            </div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path
+              d="M1 17L17 1M17 1H4M17 1V14"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="contact-form-wrap">
+      <div class="section-label">Send A Message</div>
+      <form
+        id="contact-form"
+        class="reveal"
+        method="post"
+        action="{% url 'mainportfolio:home' %}"
+        novalidate
+      >
+        {% csrf_token %}
+
+        {% for field in contact_form.hidden_fields %}
+        {{ field }}
+        {% endfor %}
+
+        <div class="form-row">
+          <label class="form-label" for="{{ contact_form.name.id_for_label }}">Your Name</label>
+          {{ contact_form.name }}
+          {% if contact_form.name.errors %}
+          <span class="form-field-error">{{ contact_form.name.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="{{ contact_form.email.id_for_label }}">Email Address</label>
+          {{ contact_form.email }}
+          {% if contact_form.email.errors %}
+          <span class="form-field-error">{{ contact_form.email.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="{{ contact_form.subject.id_for_label }}">Subject</label>
+          {{ contact_form.subject }}
+          {% if contact_form.subject.errors %}
+          <span class="form-field-error">{{ contact_form.subject.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="{{ contact_form.message.id_for_label }}">Message</label>
+          {{ contact_form.message }}
+          {% if contact_form.message.errors %}
+          <span class="form-field-error">{{ contact_form.message.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <button type="submit" id="submit-btn" class="form-submit">
+          <span id="btn-text">Send Message →</span>
+        </button>
+      </form>
+
+      <div class="form-messages" aria-live="polite">
+        <div
+          id="form-success"
+          class="form-feedback form-feedback--success"
+          role="status"
+          hidden
+        >
+          ✓ Message sent! I'll get back to you soon.
+        </div>
+        <div
+          id="form-error"
+          class="form-feedback form-feedback--error"
+          role="alert"
+          hidden
+        >
+          ✗ Something went wrong. Please try again.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

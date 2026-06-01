@@ -1,0 +1,71 @@
+<section id="projects">
+  <div class="projects-header">
+    <div class="reveal">
+      <div class="section-label">Selected Work</div>
+      <div class="projects-title">
+        Projects<br />
+        <span class="projects-title-accent">&amp; Case Studies</span>
+      </div>
+    </div>
+    <div class="projects-count reveal">{{ projects|length }} Projects</div>
+  </div>
+
+  {% if projects %}
+  <div class="projects-list">
+    {% for project in projects %}
+    <article class="project-row reveal">
+      <div class="project-row-thumb">
+        {% if project.preview %}
+        <img
+          src="{{ project.preview.url }}"
+          alt="{{ project.project_name }} project preview"
+          class="project-row-image"
+          loading="lazy"
+          decoding="async"
+        />
+        {% else %}
+        <div class="project-row-placeholder" aria-hidden="true">
+          <span>&lt;/&gt;</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="project-row-num">{{ forloop.counter|stringformat:"02d" }}</div>
+
+      <div class="project-row-main">
+        <h3 class="project-row-title">{{ project.project_name }}</h3>
+        <p class="project-row-desc">{{ project.description }}</p>
+      </div>
+
+      <div class="project-row-tech">
+        {% for tech in project.technology %}
+        <span class="tech-badge">{{ tech }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="project-row-action">
+        {% if project.github_url %}
+        <a
+          href="{{ project.github_url }}"
+          class="project-row-link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path
+              d="M1 13L13 1M13 1H4M13 1V10"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+        </a>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="projects-empty reveal">No projects yet — check back soon.</p>
+  {% endif %}
+</section>

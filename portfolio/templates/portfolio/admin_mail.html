@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>New portfolio inquiry</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #ede7d9;
+      font-family: Georgia, 'Times New Roman', serif;
+      -webkit-font-smoothing: antialiased;
+    "
+  >
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="background-color: #ede7d9; padding: 40px 16px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="
+              max-width: 560px;
+              background-color: #faf7f2;
+              border: 1px solid rgba(26, 24, 20, 0.1);
+            "
+          >
+            <!-- Alert banner -->
+            <tr>
+              <td
+                style="
+                  background: linear-gradient(135deg, #0047ff 0%, #0036c4 100%);
+                  padding: 14px 40px;
+                  text-align: center;
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 11px;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                    color: #faf7f2;
+                  "
+                >
+                  ● New inquiry on your portfolio
+                </p>
+              </td>
+            </tr>
+
+            <!-- Header -->
+            <tr>
+              <td style="padding: 36px 40px 8px">
+                <p
+                  style="
+                    margin: 0 0 8px;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 11px;
+                    letter-spacing: 0.15em;
+                    text-transform: uppercase;
+                    color: #6b6560;
+                  "
+                >
+                  Admin notification
+                </p>
+                <h1
+                  style="
+                    margin: 0 0 28px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 26px;
+                    font-weight: 800;
+                    line-height: 1.2;
+                    color: #1a1814;
+                    letter-spacing: -0.02em;
+                  "
+                >
+                  Someone wants to connect
+                </h1>
+
+                <!-- Contact card -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  style="
+                    background-color: #1a1814;
+                    margin-bottom: 20px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 28px 32px">
+                      <p
+                        style="
+                          margin: 0 0 4px;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.15em;
+                          text-transform: uppercase;
+                          color: rgba(250, 247, 242, 0.5);
+                        "
+                      >
+                        From
+                      </p>
+                      <p
+                        style="
+                          margin: 0 0 16px;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 22px;
+                          font-weight: 700;
+                          color: #faf7f2;
+                        "
+                      >
+                        {{ name }}
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 13px;
+                          color: #0047ff;
+                        "
+                      >
+                        <a
+                          href="mailto:{{ email }}"
+                          style="color: #6eb0ff; text-decoration: none"
+                          >{{ email }}</a
+                        >
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Subject -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  style="
+                    border: 1px solid rgba(26, 24, 20, 0.1);
+                    margin-bottom: 12px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 20px 24px; background-color: #f5f0e8">
+                      <p
+                        style="
+                          margin: 0 0 6px;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #6b6560;
+                        "
+                      >
+                        Subject
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 17px;
+                          font-weight: 700;
+                          color: #1a1814;
+                        "
+                      >
+                        {{ subject }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Message -->
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  style="
+                    border: 1px solid rgba(26, 24, 20, 0.1);
+                    margin-bottom: 28px;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 20px 24px">
+                      <p
+                        style="
+                          margin: 0 0 10px;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #6b6560;
+                        "
+                      >
+                        Message
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 13px;
+                          line-height: 1.85;
+                          color: #1a1814;
+                          white-space: pre-wrap;
+                        "
+                      >
+                        {{ message }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- CTA -->
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  width="100%"
+                >
+                  <tr>
+                    <td width="50%" style="padding-right: 6px">
+                      <a
+                        href="mailto:{{ email }}?subject={{ 'Re: '|add:subject|urlencode }}"
+                        style="
+                          display: block;
+                          text-align: center;
+                          padding: 14px 16px;
+                          background-color: #0047ff;
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 11px;
+                          letter-spacing: 0.1em;
+                          text-transform: uppercase;
+                          color: #faf7f2;
+                          text-decoration: none;
+                        "
+                        >Reply now →</a
+                      >
+                    </td>
+                    <td width="50%" style="padding-left: 6px">
+                      <a
+                        href="{{ portfolio_url }}"
+                        style="
+                          display: block;
+                          text-align: center;
+                          padding: 14px 16px;
+                          background-color: #f5f0e8;
+                          border: 1px solid rgba(26, 24, 20, 0.12);
+                          font-family: 'Courier New', Courier, monospace;
+                          font-size: 11px;
+                          letter-spacing: 0.1em;
+                          text-transform: uppercase;
+                          color: #1a1814;
+                          text-decoration: none;
+                        "
+                        >Open site</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 24px 40px 36px;
+                  border-top: 1px solid rgba(26, 24, 20, 0.1);
+                "
+              >
+                <p
+                  style="
+                    margin: 0;
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 10px;
+                    letter-spacing: 0.08em;
+                    color: rgba(107, 101, 96, 0.75);
+                    text-align: center;
+                  "
+                >
+                  Portfolio contact form · {{ year }} · vm.dev
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

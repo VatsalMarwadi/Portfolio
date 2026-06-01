@@ -1,0 +1,110 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Vatsal Marwadi — Full Stack Developer portfolio. Projects, skills, and contact."
+    />
+    <title>{% block title %}Vatsal Marwadi{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,100;0,9..144,300;0,9..144,400;1,9..144,300&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'portfolio/css/style.css' %}?v=9" />
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="loading" data-active-section="{{ active_section|default:'' }}">
+    <div id="loader">
+      <div class="loader-name" id="loader-name">
+        Vatsal Marwadi<span style="color: var(--accent)">.</span>
+      </div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar" id="loader-bar"></div>
+      </div>
+      <div class="loader-counter" id="loader-counter">000</div>
+    </div>
+
+    <div id="cursor" class="cursor" aria-hidden="true">
+      <div class="cursor-ring"></div>
+      <div class="cursor-dot"></div>
+    </div>
+
+    <nav id="navbar">
+      <a href="{% url 'mainportfolio:home' %}" class="nav-logo">vm<span>.</span>dev</a>
+      <ul class="nav-links">
+        {% for section in nav_sections %}
+        <li>
+          <a
+            href="{{ section.home_hash_url }}"
+            class="nav-section-link{% if active_section == section.slug %} is-active{% endif %}"
+            data-section="{{ section.slug }}"
+          >{{ section.label }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="nav-actions">
+        <a
+          href="https://drive.google.com/file/d/1jngkbVVGJeqCtAptFTa0HgVHD9ycoQTk/view?usp=sharing"
+          class="nav-cv-btn"
+          download
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ↓ Resume
+        </a>
+        <!-- <a href="mailto:vatsalmarwadi2@gmail.com" class="nav-cta">Hire Me</a> -->
+      </div>
+      <button
+        type="button"
+        class="hamburger"
+        id="hamburger"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+      {% for section in nav_sections %}
+      <a href="{{ section.home_hash_url }}" class="nav-section-link" data-section="{{ section.slug }}">
+        {{ section.label }}
+      </a>
+      {% endfor %}
+      <a
+        href="https://drive.google.com/file/d/1jngkbVVGJeqCtAptFTa0HgVHD9ycoQTk/view?usp=sharing"
+        download="Vatsal_Marwadi_CV.pdf"
+        >↓ Download Resume</a
+      >
+      <!-- <a href="mailto:vatsalmarwadi2@gmail.com">Hire Me →</a> -->
+    </div>
+
+    {% if messages %}
+    <div class="django-messages" aria-live="polite">
+      {% for message in messages %}
+      <p class="django-message django-message--{{ message.tags }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <footer>
+      <div class="footer-left">
+        © <span id="year"></span> Vatsal Marwadi. All rights reserved.
+      </div>
+      <div class="footer-logo">vm<span>.</span>dev</div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="{% static 'portfolio/js/script.js' %}?v=9"></script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>
