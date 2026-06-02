@@ -133,17 +133,49 @@ def _handle_contact_post(request, active_section):
         return render(request, "portfolio/index.html", ctx, status=500)
 
     portfolio_url = request.build_absolute_uri(reverse("mainportfolio:home"))
-    send_inquiry_emails(inquiry, portfolio_url)
+    email_result = send_inquiry_emails(inquiry, portfolio_url)
 
     if _is_ajax(request):
+        if email_result.get("skipped"):
+            message = (
+                "Your message was saved, but email is not configured on the server yet."
+            )
+        elif email_result.get("user") and email_result.get("admin"):
+            message = "Your message was sent successfully. We'll be in touch soon."
+        elif email_result.get("admin"):
+            message = (
+                "Your message was received. If you don't see a confirmation email, "
+                "please check Spam/Junk."
+            )
+        else:
+            message = (
+                "Your message was saved, but email delivery failed. "
+                "We will still reply to you."
+            )
         return JsonResponse(
             {
                 "success": True,
-                "message": "Your message was sent successfully. We'll be in touch soon.",
+                "message": message,
+                "email": {
+                    "user": bool(email_result.get("user")),
+                    "admin": bool(email_result.get("admin")),
+                    "skipped": bool(email_result.get("skipped")),
+                },
             }
         )
 
-    messages.success(request, "Your message was sent successfully.")
+    if email_result.get("skipped"):
+        messages.warning(
+            request,
+            "Message saved, but email is not configured on the server yet.",
+        )
+    elif email_result.get("user") and email_result.get("admin"):
+        messages.success(request, "Your message was sent successfully.")
+    else:
+        messages.warning(
+            request,
+            "Message saved, but email delivery failed. We will still reply to you.",
+        )
     return redirect(reverse("mainportfolio:contact"))
 
 
