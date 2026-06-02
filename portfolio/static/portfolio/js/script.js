@@ -216,7 +216,8 @@
       const formData = new FormData(form);
 
       try {
-        const response = await fetch(window.location.pathname, {
+        const postUrl = form.getAttribute("action") || window.location.pathname;
+        const response = await fetch(postUrl, {
           method: "POST",
           headers: {
             "X-Requested-With": "XMLHttpRequest",

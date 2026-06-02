@@ -198,12 +198,31 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 
 # ── Email ─────────────────────────────────────────────────────
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# Render free tier blocks outbound SMTP (587/465). Use SendGrid (SENDGRID_API_KEY)
+# or another provider that allows SMTP/API from cloud hosts.
+SENDGRID_API_KEY = env("SENDGRID_API_KEY", "")
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
 EMAIL_HOST = env("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(env("EMAIL_PORT", "587"))
 EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_TIMEOUT = int(env("EMAIL_TIMEOUT", "30"))
+
+if SENDGRID_API_KEY:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.sendgrid.net"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = "apikey"
+    EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+
+if DEBUG and not EMAIL_HOST_PASSWORD and not SENDGRID_API_KEY:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@localhost")
 CONTACT_ADMIN_EMAIL = env("CONTACT_ADMIN_EMAIL", "vatsalmarwadi2@gmail.com")
 
