@@ -13,6 +13,7 @@ urlpatterns = [
         name="root",
     ),
     path("home/", views.home, name="home"),
+    path("email-diag/", views.email_diag, name="email_diag"),
     path(
         f"{SECTION_HERO}/",
         RedirectView.as_view(url="/home/#hero", permanent=False),

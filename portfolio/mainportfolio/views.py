@@ -8,10 +8,13 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
+from django.conf import settings
+from django.views.decorators.cache import never_cache
+
 from .constants import SECTION_CONTACT, VALID_SECTIONS
 from .forms import ContactForm
 from .models import Education, Inquiry, Link, Projects, Skills
-from .services import send_inquiry_emails
+from .services import _email_transport, send_inquiry_emails
 from .utils import client_ip
 
 logger = logging.getLogger(__name__)
@@ -177,6 +180,52 @@ def _handle_contact_post(request, active_section):
             "Message saved, but email delivery failed. We will still reply to you.",
         )
     return redirect(reverse("mainportfolio:contact"))
+
+
+@never_cache
+def email_diag(request):
+    """
+    Diagnostic endpoint — only accessible to logged-in staff.
+    Visit /email-diag/ on Render to confirm configuration.
+    """
+    if not request.user.is_staff:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("Staff only.")
+
+    transport = _email_transport()
+    config = {
+        "transport": transport,
+        "EMAIL_BACKEND": settings.EMAIL_BACKEND,
+        "EMAIL_HOST": settings.EMAIL_HOST,
+        "EMAIL_PORT": settings.EMAIL_PORT,
+        "EMAIL_USE_TLS": settings.EMAIL_USE_TLS,
+        "EMAIL_HOST_USER": settings.EMAIL_HOST_USER,
+        "EMAIL_HOST_PASSWORD_set": bool(settings.EMAIL_HOST_PASSWORD),
+        "SENDGRID_API_KEY_set": bool(getattr(settings, "SENDGRID_API_KEY", "")),
+        "BREVO_API_KEY_set": bool(getattr(settings, "BREVO_API_KEY", "")),
+        "RESEND_API_KEY_set": bool(getattr(settings, "RESEND_API_KEY", "")),
+        "DEFAULT_FROM_EMAIL": settings.DEFAULT_FROM_EMAIL,
+        "CONTACT_ADMIN_EMAIL": settings.CONTACT_ADMIN_EMAIL,
+        "DEBUG": settings.DEBUG,
+    }
+
+    if request.GET.get("send_test") == "1" and transport != "none":
+        from .models import Inquiry as InquiryModel
+        test_inq = InquiryModel(
+            name="Diag Test",
+            email=settings.CONTACT_ADMIN_EMAIL,
+            subject="[DIAG] Email config test",
+            message="This is a diagnostic test from /email-diag/.",
+        )
+        test_inq.save()
+        result = send_inquiry_emails(
+            test_inq,
+            request.build_absolute_uri(reverse("mainportfolio:home")),
+        )
+        test_inq.delete()
+        return JsonResponse({"config": config, "send_result": result})
+
+    return JsonResponse({"config": config, "tip": "Add ?send_test=1 to send a test email."})
 
 
 # Backwards-compatible alias
