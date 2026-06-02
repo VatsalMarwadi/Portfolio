@@ -232,6 +232,9 @@
 
         if (response.ok && data.success) {
           form.reset();
+          if (successEl && data.message) {
+            successEl.textContent = `✓ ${data.message}`;
+          }
           showFeedback(successEl, true);
         } else {
           if (data.errors) {
@@ -246,12 +249,16 @@
               row.appendChild(err);
             });
           }
-          if (data.error) {
-            errorEl.textContent = `✗ ${data.error}`;
-          }
+          const fallback =
+            response.status === 403
+              ? "Security check failed. Refresh the page and try again."
+              : "Something went wrong. Please try again.";
+          errorEl.textContent = `✗ ${data.error || fallback}`;
           showFeedback(errorEl, true);
         }
       } catch {
+        errorEl.textContent =
+          "✗ Network error. Please check your connection and try again.";
         showFeedback(errorEl, true);
       } finally {
         if (submitBtn) submitBtn.disabled = false;
