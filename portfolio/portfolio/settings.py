@@ -201,6 +201,8 @@ else:
 # Render free tier blocks outbound SMTP (587/465). Use SendGrid (SENDGRID_API_KEY)
 # or another provider that allows SMTP/API from cloud hosts.
 SENDGRID_API_KEY = env("SENDGRID_API_KEY", "")
+BREVO_API_KEY = env("BREVO_API_KEY", "")
+RESEND_API_KEY = env("RESEND_API_KEY", "")
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",
     "django.core.mail.backends.smtp.EmailBackend",

@@ -1,5 +1,4 @@
 import logging
-import threading
 from collections import defaultdict
 
 from django.contrib import messages
@@ -12,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from .constants import SECTION_CONTACT, VALID_SECTIONS
 from .forms import ContactForm
 from .models import Education, Inquiry, Link, Projects, Skills
-from .services import dispatch_inquiry_emails
+from .services import send_inquiry_emails
 from .utils import client_ip
 
 logger = logging.getLogger(__name__)
@@ -134,11 +133,7 @@ def _handle_contact_post(request, active_section):
         return render(request, "portfolio/index.html", ctx, status=500)
 
     portfolio_url = request.build_absolute_uri(reverse("mainportfolio:home"))
-    threading.Thread(
-        target=dispatch_inquiry_emails,
-        args=(inquiry.pk, portfolio_url),
-        daemon=True,
-    ).start()
+    send_inquiry_emails(inquiry, portfolio_url)
 
     if _is_ajax(request):
         return JsonResponse(

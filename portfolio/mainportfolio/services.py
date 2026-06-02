@@ -32,23 +32,42 @@ def _from_email_address():
     return raw.strip()
 
 
-def _email_configured():
+def _email_transport():
+    """Which delivery method is active (first match wins)."""
     if getattr(settings, "SENDGRID_API_KEY", ""):
-        return True
+        return "sendgrid"
+    if getattr(settings, "BREVO_API_KEY", ""):
+        return "brevo"
+    if getattr(settings, "RESEND_API_KEY", ""):
+        return "resend"
     backend = settings.EMAIL_BACKEND
     if backend.endswith("console.EmailBackend"):
-        return True
-    return bool(settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD)
+        return "console"
+    if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+        return "smtp"
+    return "none"
+
+
+def _email_configured():
+    return _email_transport() != "none"
+
+
+def _http_post_json(url, payload, headers, timeout):
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return 200 <= response.status < 300
 
 
 def _send_via_sendgrid_api(*, to_email, subject, html_body):
-    api_key = getattr(settings, "SENDGRID_API_KEY", "")
-    if not api_key:
-        return False
-
+    api_key = settings.SENDGRID_API_KEY
     from_email = _from_email_address()
     if not from_email:
-        logger.error("DEFAULT_FROM_EMAIL is not set for SendGrid")
+        logger.error("DEFAULT_FROM_EMAIL is required for SendGrid")
         return False
 
     payload = {
@@ -60,23 +79,84 @@ def _send_via_sendgrid_api(*, to_email, subject, html_body):
             {"type": "text/html", "value": html_body},
         ],
     }
-    request = urllib.request.Request(
-        "https://api.sendgrid.com/v3/mail/send",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
     try:
-        with urllib.request.urlopen(request, timeout=settings.EMAIL_TIMEOUT) as response:
-            return 200 <= response.status < 300
+        return _http_post_json(
+            "https://api.sendgrid.com/v3/mail/send",
+            payload,
+            {"Authorization": f"Bearer {api_key}"},
+            settings.EMAIL_TIMEOUT,
+        )
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        logger.error("SendGrid API %s: %s", exc.code, body)
+        logger.error(
+            "SendGrid API %s: %s",
+            exc.code,
+            exc.read().decode("utf-8", errors="replace"),
+        )
     except Exception:
-        logger.exception("SendGrid API request failed for %s", to_email)
+        logger.exception("SendGrid API failed for %s", to_email)
+    return False
+
+
+def _send_via_brevo_api(*, to_email, subject, html_body):
+    api_key = settings.BREVO_API_KEY
+    from_email = _from_email_address()
+    if not from_email:
+        logger.error("DEFAULT_FROM_EMAIL is required for Brevo")
+        return False
+
+    payload = {
+        "sender": {"email": from_email, "name": "Portfolio"},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": html_body,
+        "textContent": strip_tags(html_body),
+    }
+    try:
+        return _http_post_json(
+            "https://api.brevo.com/v3/smtp/email",
+            payload,
+            {"api-key": api_key},
+            settings.EMAIL_TIMEOUT,
+        )
+    except urllib.error.HTTPError as exc:
+        logger.error(
+            "Brevo API %s: %s",
+            exc.code,
+            exc.read().decode("utf-8", errors="replace"),
+        )
+    except Exception:
+        logger.exception("Brevo API failed for %s", to_email)
+    return False
+
+
+def _send_via_resend_api(*, to_email, subject, html_body):
+    api_key = settings.RESEND_API_KEY
+    from_email = settings.DEFAULT_FROM_EMAIL or _from_email_address()
+    if not from_email:
+        logger.error("DEFAULT_FROM_EMAIL is required for Resend")
+        return False
+
+    payload = {
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body,
+    }
+    try:
+        return _http_post_json(
+            "https://api.resend.com/emails",
+            payload,
+            {"Authorization": f"Bearer {api_key}"},
+            settings.EMAIL_TIMEOUT,
+        )
+    except urllib.error.HTTPError as exc:
+        logger.error(
+            "Resend API %s: %s",
+            exc.code,
+            exc.read().decode("utf-8", errors="replace"),
+        )
+    except Exception:
+        logger.exception("Resend API failed for %s", to_email)
     return False
 
 
@@ -92,12 +172,41 @@ def _send_via_smtp(*, to_email, subject, html_body):
     return True
 
 
+def _send_via_console(*, to_email, subject, html_body):
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=strip_tags(html_body),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[to_email],
+    )
+    email.attach_alternative(html_body, "text/html")
+    email.send()
+    return True
+
+
 def _deliver_email(*, to_email, subject, html_body):
-    if getattr(settings, "SENDGRID_API_KEY", ""):
+    transport = _email_transport()
+    if transport == "sendgrid":
         return _send_via_sendgrid_api(
             to_email=to_email, subject=subject, html_body=html_body
         )
-    return _send_via_smtp(to_email=to_email, subject=subject, html_body=html_body)
+    if transport == "brevo":
+        return _send_via_brevo_api(
+            to_email=to_email, subject=subject, html_body=html_body
+        )
+    if transport == "resend":
+        return _send_via_resend_api(
+            to_email=to_email, subject=subject, html_body=html_body
+        )
+    if transport == "console":
+        return _send_via_console(
+            to_email=to_email, subject=subject, html_body=html_body
+        )
+    if transport == "smtp":
+        return _send_via_smtp(
+            to_email=to_email, subject=subject, html_body=html_body
+        )
+    return False
 
 
 def send_inquiry_emails(inquiry, portfolio_url):
@@ -105,19 +214,29 @@ def send_inquiry_emails(inquiry, portfolio_url):
     Send confirmation to the user and notification to the admin.
     Never raises. Returns {"user": bool, "admin": bool, "skipped": bool}.
     """
-    if not _email_configured():
+    transport = _email_transport()
+    if transport == "none":
         logger.warning(
             "Email not configured; inquiry id=%s saved without sending mail",
             inquiry.pk,
         )
         return {"user": False, "admin": False, "skipped": True}
 
+    if transport == "smtp" and not settings.DEBUG:
+        logger.warning(
+            "Using SMTP on production (inquiry id=%s). Gmail often fails on Render; "
+            "set SENDGRID_API_KEY or BREVO_API_KEY for reliable delivery.",
+            inquiry.pk,
+        )
+
     try:
         context = build_email_context(inquiry, portfolio_url)
         user_html = render_to_string("portfolio/user_mail.html", context)
         admin_html = render_to_string("portfolio/admin_mail.html", context)
     except Exception:
-        logger.exception("Failed to render email templates for inquiry id=%s", inquiry.pk)
+        logger.exception(
+            "Failed to render email templates for inquiry id=%s", inquiry.pk
+        )
         return {"user": False, "admin": False, "skipped": False}
 
     result = {"user": False, "admin": False, "skipped": False}
@@ -146,23 +265,17 @@ def send_inquiry_emails(inquiry, portfolio_url):
 
     if result["user"] or result["admin"]:
         logger.info(
-            "Inquiry id=%s emails — user=%s admin=%s",
+            "Inquiry id=%s emails via %s — user=%s admin=%s",
             inquiry.pk,
+            transport,
             result["user"],
             result["admin"],
         )
+    else:
+        logger.error(
+            "Inquiry id=%s: no emails delivered (transport=%s)",
+            inquiry.pk,
+            transport,
+        )
 
     return result
-
-
-def dispatch_inquiry_emails(inquiry_id, portfolio_url):
-    """Background worker: load inquiry and send mail (safe to run in a thread)."""
-    from .models import Inquiry
-
-    try:
-        inquiry = Inquiry.objects.get(pk=inquiry_id)
-        send_inquiry_emails(inquiry, portfolio_url)
-    except Inquiry.DoesNotExist:
-        logger.error("Inquiry id=%s not found for email dispatch", inquiry_id)
-    except Exception:
-        logger.exception("Email dispatch failed for inquiry id=%s", inquiry_id)
