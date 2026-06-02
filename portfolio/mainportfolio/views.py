@@ -121,7 +121,7 @@ def _handle_contact_post(request, active_section):
                 message=data["message"],
                 ip_address=_client_ip(request),
             )
-            send_inquiry_emails(request, inquiry)
+            # send_inquiry_emails(request, inquiry)
     except Exception:
         logger.exception("Contact form failed for %s", data.get("email"))
         if _is_ajax(request):
