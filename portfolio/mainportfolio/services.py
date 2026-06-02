@@ -35,7 +35,7 @@ def send_inquiry_emails(request, inquiry):
         to=[inquiry.email],
     )
     user_email.attach_alternative(user_html, "text/html")
-    user_email.send(fail_silently=False)
+    user_email.send(fail_silently=True)
 
     admin_html = render_to_string("portfolio/admin_mail.html", context)
     admin_email = EmailMultiAlternatives(
