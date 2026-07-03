@@ -1,5 +1,5 @@
 /**
- * Portfolio — main interactions & animations
+ * Portfolio — main interactions & animations (v2 — "Signal" redesign)
  * Requires GSAP + ScrollTrigger (loaded before this file)
  */
 
@@ -119,7 +119,7 @@
 
   function getNavOffset() {
     return parseInt(
-      getComputedStyle(document.documentElement).getPropertyValue("--nav-height") || "72",
+      getComputedStyle(document.documentElement).getPropertyValue("--nav-height") || "76",
       10,
     );
   }
@@ -368,6 +368,46 @@
     requestAnimationFrame(() => ScrollTrigger.refresh());
   }
 
+  /* ── Hero blob parallax (new signature touch) ──────────── */
+  function initHeroParallax() {
+    if (prefersReducedMotion || isMobile()) return;
+    const hero = document.getElementById("hero");
+    if (!hero || typeof gsap === "undefined") return;
+
+    let raf = null;
+
+    hero.addEventListener("mousemove", (e) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const rect = hero.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width - 0.5;
+        const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+        gsap.to(hero, {
+          "--parallax-x": relX * 20 + "px",
+          "--parallax-y": relY * 20 + "px",
+          duration: 0.6,
+          ease: "power2.out",
+          onUpdate: () => {
+            hero.style.setProperty("background-position", "unset");
+          },
+        });
+
+        const title = hero.querySelector(".hero-title");
+        if (title) {
+          gsap.to(title, {
+            x: relX * 8,
+            y: relY * 6,
+            duration: 0.6,
+            ease: "power2.out",
+          });
+        }
+
+        raf = null;
+      });
+    });
+  }
+
   function showMainLayout() {
     document.body.classList.remove("loading");
     document.body.classList.add("loaded");
@@ -393,6 +433,7 @@
     if (loader) loader.remove();
 
     initScrollAnimations();
+    initHeroParallax();
     bindInteractiveCursor();
 
     if (typeof ScrollTrigger !== "undefined") {
@@ -405,6 +446,7 @@
     showMainLayout();
     if (loader) loader.remove();
     initScrollAnimations();
+    initHeroParallax();
     bindInteractiveCursor();
   }
 
