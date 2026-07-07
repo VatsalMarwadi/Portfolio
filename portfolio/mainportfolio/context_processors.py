@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from .constants import NAV_SECTIONS
+from .constants import NAV_SECTIONS, SECTION_HERO
 
 
 def navigation(request):
@@ -14,11 +14,13 @@ def navigation(request):
                 "slug": slug,
                 "label": item["label"],
                 "url": reverse(f"mainportfolio:{slug}"),
-                "home_hash_url": f"{home_url}#{slug}",
             }
         )
     return {
         "nav_sections": sections,
         "home_url": home_url,
+        "hero_url": reverse(f"mainportfolio:{SECTION_HERO}"),
+        "projects_url": reverse("mainportfolio:projects"),
+        "contact_url": reverse("mainportfolio:contact"),
         "site_name": "vm.dev",
     }

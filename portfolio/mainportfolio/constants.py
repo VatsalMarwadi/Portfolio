@@ -27,10 +27,5 @@ NAV_SECTIONS = (
 
 
 def section_url(slug):
-    """Named URL for a section (redirects to /home/#slug)."""
+    """Named URL for a portfolio section."""
     return reverse(f"mainportfolio:{slug}")
-
-
-def home_section_url(slug):
-    """Direct home URL with hash fragment (no redirect)."""
-    return f"{reverse('mainportfolio:home')}#{slug}"

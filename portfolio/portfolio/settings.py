@@ -198,8 +198,6 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 
 # ── Email ─────────────────────────────────────────────────────
-# Render free tier blocks outbound SMTP (587/465). Use SendGrid (SENDGRID_API_KEY)
-# or another provider that allows SMTP/API from cloud hosts.
 SENDGRID_API_KEY = env("SENDGRID_API_KEY", "")
 BREVO_API_KEY = env("BREVO_API_KEY", "")
 RESEND_API_KEY = env("RESEND_API_KEY", "")

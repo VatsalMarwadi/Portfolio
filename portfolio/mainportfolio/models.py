@@ -60,6 +60,28 @@ class Projects(models.Model):
         ],
     )
     github_url = models.URLField(blank=True, default="")
+    full_description = models.TextField(
+        blank=True,
+        validators=[MaxLengthValidator(5000)],
+        help_text="Detailed description for the modal popup. If empty, uses description."
+    )
+    live_url = models.URLField(
+        blank=True, 
+        default="",
+        help_text="URL to live demo or deployed project"
+    )
+    project_year = models.CharField(
+        max_length=10, 
+        blank=True,
+        help_text="e.g., 2024 or 2024-2025"
+    )
+    category = models.CharField(
+        max_length=100, 
+        blank=True,
+        default="Web Development",
+        help_text="Project category (e.g., Web Development, Mobile App, etc.)"
+    )
+    
     display_order = models.PositiveIntegerField(
         default=0,
         help_text="Higher numbers appear first.",
@@ -77,6 +99,7 @@ class Projects(models.Model):
         verbose_name_plural = "Projects"
         indexes = [
             models.Index(fields=["-display_order", "is_published"]),
+            models.Index(fields=["category"]),
         ]
 
     def __str__(self):
@@ -86,7 +109,49 @@ class Projects(models.Model):
         validate_technology_list(self.technology)
         if self.github_url:
             validate_safe_url(self.github_url)
+        if self.live_url:
+            validate_safe_url(self.live_url)
 
+    @property
+    def has_images(self):
+        """Check if project has any gallery images."""
+        return self.images.exists()
+
+class ProjectImage(models.Model):
+    project = models.ForeignKey(
+        Projects,
+        on_delete=models.CASCADE,
+        related_name='images',
+        help_text="The project this image belongs to."
+    )
+    image = models.ImageField(
+        upload_to="projects/gallery/",
+        validators=[
+            FileExtensionValidator(IMAGE_EXTENSIONS),
+            validate_image_file_size,
+        ],
+    )
+    caption = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Optional caption for the image."
+    )
+    display_order = models.PositiveIntegerField(
+        default=0,
+        help_text="Higher numbers appear first in the gallery."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["display_order", "created_at"]
+        verbose_name = "Project Image"
+        verbose_name_plural = "Project Images"
+        indexes = [
+            models.Index(fields=["project", "display_order"]),
+        ]
+
+    def __str__(self):
+        return f"{self.project.project_name} - Image {self.id}"
 
 class Inquiry(models.Model):
     name = models.CharField(max_length=80)
@@ -106,7 +171,6 @@ class Inquiry(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.subject}"
-
 
 class Link(models.Model):
     link_name = models.CharField(max_length=50)
@@ -131,7 +195,6 @@ class Link(models.Model):
     def href(self):
         """URL safe for use in templates."""
         return self.url
-
 
 class Education(models.Model):
     class Status(models.TextChoices):

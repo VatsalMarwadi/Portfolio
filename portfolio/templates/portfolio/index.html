@@ -8,4 +8,22 @@
   {% include 'portfolio/project.html' %}
   {% include 'portfolio/contact.html' %}
 </div>
+
+{% include 'portfolio/project-model.html' %}
+
+<script>
+  (function() {
+    'use strict';
+    const projectsJson = {{ projects_json|safe }};
+    window.projectData = {};
+    if (Array.isArray(projectsJson) && projectsJson.length > 0) {
+      projectsJson.forEach(function(project) {
+        window.projectData[project.id] = project;
+      });
+      console.log('✅ Project data loaded:', Object.keys(window.projectData).length, 'projects');
+    } else {
+      console.warn('⚠️ No project data available');
+    }
+  })();
+</script>
 {% endblock %}

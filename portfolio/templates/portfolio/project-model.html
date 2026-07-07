@@ -1,0 +1,66 @@
+{% load static %}
+
+<div class="project-modal-overlay"
+     id="projectModal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="modalTitle"
+     onclick="window.closeProjectModal(event)">
+
+  <div class="project-modal"
+       onclick="event.stopPropagation()">
+
+    <div class="modal-topbar">
+      <div class="modal-topbar-start">
+        <span class="modal-eyebrow">Case Study</span>
+        <span id="modalBadge" class="modal-badge"></span>
+      </div>
+
+      <button type="button"
+              class="modal-close"
+              onclick="window.closeProjectModal()"
+              aria-label="Close project details">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M2 2L16 16M16 2L2 16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-layout">
+
+      <div class="modal-media">
+        <div class="modal-showcase-head">
+          <div class="modal-media-label">
+            <span>Preview</span>
+            <span class="label-line"></span>
+          </div>
+          <span id="modalImageCount" class="modal-image-count"></span>
+        </div>
+        <div id="modalGallery" class="modal-gallery"></div>
+      </div>
+
+      <div class="modal-panel">
+        <header class="modal-header">
+          <h2 id="modalTitle" class="modal-title"></h2>
+          <p id="modalDescription" class="modal-description"></p>
+        </header>
+
+        <div id="modalDetails" class="modal-meta-row"></div>
+
+        <section class="modal-section">
+          <h3 class="modal-section-label">
+            Tech Stack
+            <span class="label-line"></span>
+          </h3>
+          <div id="modalTechStack" class="modal-tech-stack"></div>
+        </section>
+
+        <footer class="modal-footer">
+          <div id="modalActions" class="modal-actions"></div>
+        </footer>
+      </div>
+
+    </div>
+
+  </div>
+</div>

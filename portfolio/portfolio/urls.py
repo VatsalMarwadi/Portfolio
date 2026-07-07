@@ -23,7 +23,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("mainportfolio.urls")),
 ]
-
 # Local media only when not using Cloudinary
 if settings.DEBUG and not getattr(settings, "USE_CLOUDINARY", False):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

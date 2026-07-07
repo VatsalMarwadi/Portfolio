@@ -15,18 +15,19 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path(
         f"{SECTION_HERO}/",
-        RedirectView.as_view(url="/home/#hero", permanent=False),
+        views.section,
+        {"section_slug": SECTION_HERO},
         name=SECTION_HERO,
     ),
 ]
 
-# Section shortcuts: /about/ → /home/#about (Django named URLs + browser hash)
 for section in NAV_SECTIONS:
     slug = section["slug"]
     urlpatterns.append(
         path(
             f"{slug}/",
-            RedirectView.as_view(url=f"/home/#{slug}", permanent=False),
+            views.section,
+            {"section_slug": slug},
             name=slug,
         ),
     )

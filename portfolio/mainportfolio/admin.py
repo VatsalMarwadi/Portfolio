@@ -1,10 +1,10 @@
-from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.admin.sites import NotRegistered
+from django.utils.html import format_html
 
-from .forms import EducationAdminForm, ProjectsAdminForm
-from .models import Education, Inquiry, Link, Projects, Skills
+from .forms import EducationAdminForm, ProjectsAdminForm, ProjectImageAdminForm
+from .models import Education, Inquiry, Link, Projects, Skills, ProjectImage
 
 try:
     admin.site.unregister(User)
@@ -16,6 +16,17 @@ try:
 except NotRegistered:
     pass
 
+# ── Inline for Project Images ──
+class ProjectImageInline(admin.TabularInline):
+    model = ProjectImage
+    form = ProjectImageAdminForm
+    extra = 1
+    fields = ('image', 'caption', 'display_order')
+    ordering = ('display_order',)
+    max_num = 10
+    classes = ('collapse',)
+    verbose_name = "Gallery Image"
+    verbose_name_plural = "Gallery Images"
 
 @admin.register(Skills)
 class SkillsAdmin(admin.ModelAdmin):
@@ -29,29 +40,72 @@ class SkillsAdmin(admin.ModelAdmin):
 @admin.register(Projects)
 class ProjectsAdmin(admin.ModelAdmin):
     form = ProjectsAdminForm
+    inlines = [ProjectImageInline]
+    
     list_display = (
         "project_name",
+        "category",
         "is_published",
         "display_order",
         "has_preview",
+        "has_gallery_images",
         "updated_at",
     )
-    list_filter = ("is_published", "created_at")
-    search_fields = ("project_name", "description")
+    list_filter = ("is_published", "category", "created_at")
+    search_fields = ("project_name", "description", "full_description")
     ordering = ("-display_order", "-created_at")
     list_editable = ("is_published", "display_order")
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at", "preview_preview")
 
     fieldsets = (
-        (None, {"fields": ("project_name", "description", "is_published", "display_order")}),
-        ("Media & links", {"fields": ("preview", "github_url")}),
-        ("Technologies", {"fields": ("technology",)}),
-        ("Timestamps", {"fields": ("created_at", "updated_at")}),
+        ("Basic Information", {
+            "fields": (
+                "project_name",
+                "category",
+                "description",
+                "full_description",
+                "is_published",
+                "display_order",
+            )
+        }),
+        ("Media & Links", {
+            "fields": (
+                "preview",
+                "preview_preview",
+                "github_url",
+                "live_url",
+            )
+        }),
+        ("Technologies", {
+            "fields": ("technology",),
+            "classes": ("collapse",),
+        }),
+        ("Metadata", {
+            "fields": ("project_year",),
+            "classes": ("collapse",),
+        }),
+        ("Timestamps", {
+            "fields": ("created_at", "updated_at"),
+            "classes": ("collapse",),
+        }),
     )
 
-    @admin.display(boolean=True, description="Preview")
+    @admin.display(boolean=True, description="Preview Image")
     def has_preview(self, obj):
         return bool(obj.preview)
+
+    @admin.display(boolean=True, description="Has Gallery")
+    def has_gallery_images(self, obj):
+        return obj.images.exists()
+
+    @admin.display(description="Preview")
+    def preview_preview(self, obj):
+        if obj.preview:
+            return format_html(
+                '<img src="{}" style="max-height: 150px; max-width: 200px; border-radius: 8px; object-fit: cover;" />',
+                obj.preview.url
+            )
+        return "No preview image"
 
 
 @admin.register(Inquiry)
@@ -117,3 +171,14 @@ class EducationAdmin(admin.ModelAdmin):
     @admin.display(description="Year range")
     def year_range_display(self, obj):
         return obj.year_range
+
+
+@admin.register(ProjectImage)
+class ProjectImageAdmin(admin.ModelAdmin):
+    list_display = ("id", "project", "caption", "display_order", "created_at")
+    list_filter = ("project", "created_at")
+    search_fields = ("caption", "project__project_name")
+    ordering = ("project", "display_order")
+    list_editable = ("display_order",)
+    raw_id_fields = ("project",)
+    fields = ("project", "image", "caption", "display_order")

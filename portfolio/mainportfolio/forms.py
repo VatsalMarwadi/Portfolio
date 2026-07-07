@@ -1,7 +1,8 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
-from .models import Education, Projects
-from .validators import parse_comma_separated_list, validate_person_name
+from .models import Education, Projects, ProjectImage
+from .validators import parse_comma_separated_list, validate_person_name, validate_safe_url, validate_technology_list
 
 
 class CommaSeparatedArrayField(forms.CharField):
@@ -99,14 +100,55 @@ class ContactForm(forms.Form):
             raise forms.ValidationError("Submission rejected.")
         return ""
 
-
 class ProjectsAdminForm(forms.ModelForm):
-    technology = CommaSeparatedArrayField(required=False)
+    technology = CommaSeparatedArrayField(
+        required=False,
+        help_text="Comma-separated list of technologies used in this project."
+    )
 
     class Meta:
         model = Projects
         fields = "__all__"
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'vLargeTextField'}),
+            'full_description': forms.Textarea(attrs={'rows': 6, 'class': 'vLargeTextField'}),
+        }
+        help_texts = {
+            'full_description': 'Detailed description shown in the project modal popup. If empty, uses the main description.',
+            'project_year': 'e.g., 2024 or 2024-2025',
+            'live_url': 'URL to live demo or deployed project',
+            'category': 'Project category for filtering and display',
+            'github_url': 'URL to the GitHub repository',
+            'preview': 'Main preview image displayed on the project card',
+        }
 
+    def clean_technology(self):
+        data = self.cleaned_data.get('technology', [])
+        if isinstance(data, str):
+            data = [item.strip() for item in data.split(',') if item.strip()]
+        validate_technology_list(data)
+        return data
+
+    def clean_github_url(self):
+        url = self.cleaned_data.get('github_url', '')
+        if url and not url.startswith(('http://', 'https://')):
+            url = f'https://{url}'
+        if url:
+            validate_safe_url(url)
+        return url
+
+    def clean_live_url(self):
+        url = self.cleaned_data.get('live_url', '')
+        if url and not url.startswith(('http://', 'https://')):
+            url = f'https://{url}'
+        if url:
+            validate_safe_url(url)
+        return url
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # Ensure full_description is not empty if it's required, but it's optional
+        return cleaned_data
 
 class EducationAdminForm(forms.ModelForm):
     technologies = CommaSeparatedArrayField(
@@ -117,3 +159,26 @@ class EducationAdminForm(forms.ModelForm):
     class Meta:
         model = Education
         fields = "__all__"
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'vLargeTextField'}),
+        }
+
+    def clean_technologies(self):
+        data = self.cleaned_data.get('technologies', [])
+        if isinstance(data, str):
+            data = [item.strip() for item in data.split(',') if item.strip()]
+        validate_technology_list(data)
+        return data
+
+# ── ProjectImage Admin Form ──
+class ProjectImageAdminForm(forms.ModelForm):
+    class Meta:
+        model = ProjectImage
+        fields = "__all__"
+        widgets = {
+            'caption': forms.TextInput(attrs={'class': 'vTextField'}),
+        }
+        help_texts = {
+            'caption': 'Optional caption displayed on hover in the gallery',
+            'display_order': 'Higher numbers appear first in the gallery',
+        }

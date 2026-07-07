@@ -1,28 +1,30 @@
 <section id="education">
-  <div class="reveal">
-    <div class="edu-section-header">
-      <div>
-        <div class="section-label">Education</div>
-        <h2 class="edu-main-title">
-          Academic<br />
-          <em>foundation.</em>
-        </h2>
+  <div class="edu-header">
+    <div>
+      <div class="section-label reveal">
+        Education
+        <span class="label-line"></span>
       </div>
-      <div class="edu-header-right">
-        <p class="edu-subtitle">
-          A focused academic path built on computer science fundamentals,
-          modern engineering practices, and continuous self-improvement.
-        </p>
-        {% if educations %}
-        <div class="edu-total-badge">
-          {% if education_completed_count %}
-          {{ education_completed_count }} Degree{{ education_completed_count|pluralize }} Completed
-          {% else %}
-          {{ educations|length }} Academic Program{{ educations|length|pluralize }}
-          {% endif %}
-        </div>
+      <h2 class="edu-main-title reveal">
+        Academic<br />
+        <span class="highlight">foundation.</span>
+      </h2>
+    </div>
+    <div class="edu-header-right reveal">
+      <p class="edu-header-text">
+        A focused academic path built on computer science fundamentals,
+        modern engineering practices, and continuous self-improvement.
+      </p>
+      {% if educations %}
+      <div class="edu-badge">
+        <span class="badge-icon"></span>
+        {% if education_completed_count %}
+        {{ education_completed_count }} Degree{{ education_completed_count|pluralize }} Completed
+        {% else %}
+        {{ educations|length }} Program{{ educations|length|pluralize }}
         {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 
@@ -42,7 +44,7 @@
         {% if edu.technologies %}
         <div class="edu-card-tags">
           {% for tech in edu.technologies %}
-          <span class="edu-card-tag">{{ tech }}</span>
+          <span class="edu-tag">{{ tech }}</span>
           {% endfor %}
         </div>
         {% endif %}
@@ -58,7 +60,7 @@
       </div>
     </div>
     {% empty %}
-    <p class="edu-empty reveal">Education details will be added soon.</p>
+    <p class="reveal">Education details will be added soon.</p>
     {% endfor %}
   </div>
 </section>
