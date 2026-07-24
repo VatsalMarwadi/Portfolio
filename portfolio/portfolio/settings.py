@@ -44,7 +44,7 @@ IS_RENDER = env_bool("RENDER", False)
 
 ALLOWED_HOSTS = env_list(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,.onrender.com",
+    "localhost,127.0.0.1,.onrender.com,.vercel.app",
 )
 
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
