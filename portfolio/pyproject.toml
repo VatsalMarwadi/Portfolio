@@ -1,2 +1,2 @@
 [tool.vercel]
-entrypoint = "portfolio.portfolio.asgi:application"
+entrypoint = "portfolio.asgi:application"
