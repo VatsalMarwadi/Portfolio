@@ -15,14 +15,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # BASE CONFIGURATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env for local development.
-# On Vercel, environment variables are provided by Vercel.
 load_dotenv(BASE_DIR / ".env")
 
 
@@ -57,9 +55,9 @@ def env_list(key, default=""):
     ]
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # CORE SETTINGS
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 SECRET_KEY = env("SECRET_KEY")
 
@@ -70,17 +68,12 @@ if not SECRET_KEY:
     )
 
 
-# Local .env:
-# DJANGO_DEBUG=True
-#
-# Vercel:
-# DJANGO_DEBUG=False
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # ALLOWED HOSTS
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 ALLOWED_HOSTS = env_list(
     "ALLOWED_HOSTS",
@@ -88,32 +81,18 @@ ALLOWED_HOSTS = env_list(
 )
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # CSRF TRUSTED ORIGINS
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
 )
 
 
-# Automatically add HTTPS origins for exact hosts.
-#
-# Example:
-# ALLOWED_HOSTS = myportfolio.vercel.app
-#
-# Automatically adds:
-# https://myportfolio.vercel.app
-#
-# Wildcards such as .vercel.app are skipped because:
-# https://.vercel.app is not a valid CSRF origin.
-
 for host in ALLOWED_HOSTS:
 
-    if host in (
-        "localhost",
-        "127.0.0.1",
-    ):
+    if host in ("localhost", "127.0.0.1"):
         continue
 
     if host.startswith("."):
@@ -125,9 +104,9 @@ for host in ALLOWED_HOSTS:
         CSRF_TRUSTED_ORIGINS.append(origin)
 
 
-# ─────────────────────────────────────────────────────────────
-# CLOUDINARY CONFIGURATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
+# CLOUDINARY
+# ============================================================
 
 CLOUDINARY_CLOUD_NAME = (
     env("CLOUDINARY_CLOUD_NAME")
@@ -154,9 +133,9 @@ USE_CLOUDINARY = all(
 )
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # INSTALLED APPS
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -165,55 +144,60 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    # PostgreSQL support
     "django.contrib.postgres",
 
-    # Your app
     "mainportfolio",
 ]
 
 
 if USE_CLOUDINARY:
+
     INSTALLED_APPS = [
         "cloudinary",
         *INSTALLED_APPS,
     ]
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # MIDDLEWARE
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
 
-    # WhiteNoise for static files
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
+
     "django.middleware.common.CommonMiddleware",
+
     "django.middleware.csrf.CsrfViewMiddleware",
+
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+
     "django.contrib.messages.middleware.MessageMiddleware",
+
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # URL CONFIGURATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 ROOT_URLCONF = "portfolio.urls"
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # TEMPLATES
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "BACKEND": (
+            "django.template.backends.django."
+            "DjangoTemplates"
+        ),
 
         "DIRS": [
             BASE_DIR / "templates",
@@ -224,8 +208,11 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
+
                 "django.contrib.auth.context_processors.auth",
+
                 "django.contrib.messages.context_processors.messages",
+
                 "mainportfolio.context_processors.navigation",
             ],
         },
@@ -233,16 +220,16 @@ TEMPLATES = [
 ]
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # WSGI
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 WSGI_APPLICATION = "portfolio.wsgi.application"
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # DATABASE
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 DATABASE_URL = env("DATABASE_URL")
 
@@ -264,26 +251,32 @@ if DATABASE_URL:
 
 else:
 
-    # Local PostgreSQL fallback
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
+            "ENGINE": (
+                "django.db.backends.postgresql"
+            ),
+
             "NAME": env(
                 "DB_NAME",
                 "portfolio_db",
             ),
+
             "USER": env(
                 "DB_USER",
                 "postgres",
             ),
+
             "PASSWORD": env(
                 "DB_PASSWORD",
                 "",
             ),
+
             "HOST": env(
                 "DB_HOST",
                 "localhost",
             ),
+
             "PORT": env(
                 "DB_PORT",
                 "5432",
@@ -292,9 +285,9 @@ else:
     }
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # PASSWORD VALIDATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -303,18 +296,21 @@ AUTH_PASSWORD_VALIDATORS = [
             "UserAttributeSimilarityValidator"
         ),
     },
+
     {
         "NAME": (
             "django.contrib.auth.password_validation."
             "MinimumLengthValidator"
         ),
     },
+
     {
         "NAME": (
             "django.contrib.auth.password_validation."
             "CommonPasswordValidator"
         ),
     },
+
     {
         "NAME": (
             "django.contrib.auth.password_validation."
@@ -324,9 +320,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # INTERNATIONALIZATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 LANGUAGE_CODE = "en-us"
 
@@ -337,9 +333,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # STATIC FILES
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 STATIC_URL = "/static/"
 
@@ -350,51 +346,33 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
-STORAGES = {
-    "default": {
-        "BACKEND": (
-            "cloudinary_storage.storage.MediaCloudinaryStorage"
-            if USE_CLOUDINARY
-            else
-            "django.core.files.storage.FileSystemStorage"
-        ),
-    },
-
-    "staticfiles": {
-        "BACKEND": (
-            "whitenoise.storage.CompressedStaticFilesStorage"
-            if DEBUG
-            else
-            "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        ),
-    },
-}
-
-
-# Backward compatibility
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedStaticFilesStorage"
-    if DEBUG
-    else
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
-
-# ─────────────────────────────────────────────────────────────
-# MEDIA FILES
-# ─────────────────────────────────────────────────────────────
+# ============================================================
+# MEDIA AND STATIC STORAGE
+# ============================================================
 
 if USE_CLOUDINARY:
 
-    STORAGES["default"] = {
-        "BACKEND": (
-            "cloudinary_storage.storage."
-            "MediaCloudinaryStorage"
-        ),
+    STORAGES = {
+        "default": {
+            "BACKEND": (
+                "cloudinary_storage.storage."
+                "MediaCloudinaryStorage"
+            ),
+        },
+
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage."
+                "CompressedManifestStaticFilesStorage"
+            ),
+        },
     }
 
     CLOUDINARY_STORAGE = {
         "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
+
         "API_KEY": CLOUDINARY_API_KEY,
+
         "API_SECRET": CLOUDINARY_API_SECRET,
     }
 
@@ -403,11 +381,18 @@ if USE_CLOUDINARY:
 
 else:
 
-    STORAGES["default"] = {
+    STORAGES = {
         "default": {
             "BACKEND": (
                 "django.core.files.storage."
                 "FileSystemStorage"
+            ),
+        },
+
+        "staticfiles": {
+            "BACKEND": (
+                "whitenoise.storage."
+                "CompressedManifestStaticFilesStorage"
             ),
         },
     }
@@ -417,9 +402,9 @@ else:
     MEDIA_ROOT = BASE_DIR / "media"
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # EMAIL CONFIGURATION
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 SENDGRID_API_KEY = env(
     "SENDGRID_API_KEY",
@@ -477,7 +462,6 @@ EMAIL_TIMEOUT = int(
 )
 
 
-# SendGrid
 if SENDGRID_API_KEY:
 
     EMAIL_BACKEND = (
@@ -495,12 +479,7 @@ if SENDGRID_API_KEY:
     EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 
 
-# Console email backend for local development
-if (
-    DEBUG
-    and not EMAIL_HOST_PASSWORD
-    and not SENDGRID_API_KEY
-):
+if DEBUG and not EMAIL_HOST_PASSWORD:
 
     EMAIL_BACKEND = (
         "django.core.mail.backends.console.EmailBackend"
@@ -512,19 +491,19 @@ DEFAULT_FROM_EMAIL = env(
     EMAIL_HOST_USER or "noreply@localhost",
 )
 
+
 CONTACT_ADMIN_EMAIL = env(
     "CONTACT_ADMIN_EMAIL",
     "vatsalmarwadi2@gmail.com",
 )
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # PRODUCTION SECURITY
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 if not DEBUG:
 
-    # Vercel handles HTTPS.
     SECURE_SSL_REDIRECT = env_bool(
         "SECURE_SSL_REDIRECT",
         False,
@@ -557,18 +536,18 @@ if not DEBUG:
     )
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # DEFAULT PRIMARY KEY
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 DEFAULT_AUTO_FIELD = (
     "django.db.models.BigAutoField"
 )
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # CACHE
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 CACHES = {
     "default": {
@@ -576,14 +555,15 @@ CACHES = {
             "django.core.cache.backends.locmem."
             "LocMemCache"
         ),
+
         "LOCATION": "portfolio-cache",
     },
 }
 
 
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 # LOGGING
-# ─────────────────────────────────────────────────────────────
+# ============================================================
 
 LOGGING = {
     "version": 1,
@@ -600,6 +580,7 @@ LOGGING = {
         "handlers": [
             "console",
         ],
+
         "level": "INFO",
     },
 
@@ -608,7 +589,9 @@ LOGGING = {
             "handlers": [
                 "console",
             ],
+
             "level": "INFO",
+
             "propagate": False,
         },
     },
